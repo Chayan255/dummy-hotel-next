@@ -13,14 +13,30 @@ export default function MenuPage() {
 
   // 🥘 Fetch Menu Items from DB
   const fetchMenu = async () => {
-    try {
-      const res = await fetch('/api/main-menu');
-      const data = await res.json();
-      setMenuItems(data);
-    } catch (err) {
-      console.error('Menu fetch error:', err);
+  try {
+    const res = await fetch('/api/main-menu');
+
+    // ✅ Defensive check
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error('Menu API error:', errText);
+      setMenuItems([]); // fallback
+      return;
     }
-  };
+
+    const data = await res.json();
+
+    if (Array.isArray(data)) {
+      setMenuItems(data);
+    } else {
+      console.error('Invalid menu data:', data);
+      setMenuItems([]); // fallback
+    }
+  } catch (err) {
+    console.error('Menu fetch error:', err);
+    setMenuItems([]); // fallback
+  }
+};
 
   // 🛒 Count items in cart
   const fetchCartCount = async () => {
@@ -40,24 +56,23 @@ export default function MenuPage() {
   };
 
   // ➕ Add item to cart
- const addToCart = async (menuId) => {
-  try {
-    const res = await fetch('/api/cart', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ menuId }),
-    });
+  const addToCart = async (menuId) => {
+    try {
+      const res = await fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ menuId }),
+      });
 
-    if (res.ok) {
-      fetchCartCount(); // 🛒 Refresh count
-    } else {
-      console.warn('Failed to add to cart:', await res.text());
+      if (res.ok) {
+        fetchCartCount(); // 🛒 Refresh count
+      } else {
+        console.warn('Failed to add to cart:', await res.text());
+      }
+    } catch (err) {
+      console.error('Add to cart error:', err);
     }
-  } catch (err) {
-    console.error('Add to cart error:', err);
-  }
-};
-
+  };
 
   return (
     <div className="p-10">
