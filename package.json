@@ -9,12 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@prisma/client": "^6.11.1",
+    "next": "15.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.5"
+    "react-toastify": "^11.0.5",
+    "stripe": "^18.3.0",
+    "swiper": "^11.2.10"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "prisma": "^6.11.1",
     "tailwindcss": "^4"
   }
 }
