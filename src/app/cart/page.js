@@ -1,9 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
+import LoginPage from '../login/page';
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [customerName, setCustomerName] = useState('');
+  const [orderStatus, setOrderStatus] = useState('');
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const fetchCart = async () => {
     try {
@@ -16,7 +20,7 @@ export default function CartPage() {
         console.warn('Invalid cart response:', data);
         return;
       }
-
+ console.log( data);
       setCartItems(data);
       setLoading(false);
     } catch (err) {
@@ -26,6 +30,7 @@ export default function CartPage() {
 
   useEffect(() => {
     fetchCart();
+  
   }, []);
 
   const updateQty = async (id, delta) => {
@@ -66,13 +71,60 @@ export default function CartPage() {
     }
   };
 
-  // 🧠 Unified access for menu or lunchMenu
   const getMenuInfo = (item) => item.menu || item.lunchMenu;
 
-  const total = cartItems.reduce((sum, item) => {
+  const subtotal = cartItems.reduce((sum, item) => {
     const menuItem = getMenuInfo(item);
     return sum + menuItem.price * item.quantity;
   }, 0);
+
+  const deliveryFee = 40;
+  const totalAmount = subtotal + deliveryFee;
+
+  const handleOrderSubmit = async () => {
+    if (!customerName) {
+      alert('Please enter your name');
+      return;
+    }
+
+
+    const items = cartItems.map((item) => ({
+      
+      itemId: item.id,
+      quantity: item.quantity,
+    }));
+
+
+    try {
+      setIsPlacingOrder(true);
+      const res = await fetch('/api/order/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+
+        body: JSON.stringify({
+          items:cartItems,
+          totalAmount,
+          customerName,
+        }),
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        setOrderStatus('✅ Order placed successfully!');
+        setCartItems([]);
+      } else {
+        setOrderStatus(`❌ ${result.error || 'Order failed'}`);
+      }
+    } catch (err) {
+      console.error('Order submit error:', err);
+      setOrderStatus('❌ Something went wrong');
+    } finally {
+      setIsPlacingOrder(false);
+    }
+  };
 
   if (loading) return <p className="text-center mt-10">Loading cart...</p>;
 
@@ -122,42 +174,38 @@ export default function CartPage() {
         <h2 className="text-xl font-bold mb-4">Payment Summary</h2>
         <div className="flex justify-between mb-2">
           <span>Subtotal</span>
-          <span>₹{total}</span>
+          <span>₹{subtotal}</span>
         </div>
-        <div className="flex justify-between mb-4">
+        <div className="flex justify-between mb-2">
           <span>Delivery</span>
-          <span>₹40</span>
+          <span>₹{deliveryFee}</span>
         </div>
         <div className="flex justify-between font-semibold text-lg">
           <span>Total</span>
-          <span>₹{total + 40}</span>
+          <span>₹{totalAmount}</span>
         </div>
+      </div>
 
+      {/* 🧾 Order Form Section */}
+      <div className="bg-white p-6 rounded shadow mt-6">
+        <h2 className="text-lg font-semibold mb-2">Place Your Order</h2>
+        <input
+          type="text"
+          placeholder="Your Name"
+          value={customerName}
+          onChange={(e) => setCustomerName(e.target.value)}
+          className="w-full border border-gray-300 p-2 rounded mb-3"
+        />
         <button
-  onClick={async () => {
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-      });
-
-      const result = await res.json();
-
-      if (res.ok) {
-        alert(`Order placed! Order ID: ${result.orderId}`);
-        window.location.reload(); // optionally reload cart
-      } else {
-        alert(`❌ Checkout failed: ${result.error}`);
-      }
-    } catch (err) {
-      console.error('Checkout error:', err);
-      alert('❌ Checkout failed');
-    }
-  }}
-  className="mt-6 w-full bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600"
->
-  Proceed to Payment
-</button>
-
+          onClick={handleOrderSubmit}
+          disabled={isPlacingOrder}
+          className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
+        >
+          {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
+        </button>
+        {orderStatus && (
+          <p className="mt-4 font-medium text-center">{orderStatus}</p>
+        )}
       </div>
     </div>
   );

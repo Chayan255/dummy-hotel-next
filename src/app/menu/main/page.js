@@ -88,12 +88,12 @@ export default function MenuPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {menuItems.map((item) => (
-            <div key={item.id} className="bg-white shadow rounded p-4 text-center">
+            <div key={item.id} className="bg-white shadow rounded p-2 text-center">
               {item.image && (
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-40 object-cover rounded mb-2"
+                  className="w-full h-60 object-cover rounded mb-2"
                 />
               )}
               <h3 className="text-xl font-bold">{item.name}</h3>

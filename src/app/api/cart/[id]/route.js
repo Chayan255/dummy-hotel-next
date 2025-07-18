@@ -1,8 +1,12 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
-export async function PATCH(req, { params }) {
-  const { id } = params;
+// ✅ Force the route to use Node.js runtime
+export const runtime = 'nodejs';
+
+// ✅ PATCH: Update Quantity
+export async function PATCH(req, context) {
+  const { id } = context.params;
   const { quantity } = await req.json();
 
   try {
@@ -18,14 +22,12 @@ export async function PATCH(req, { params }) {
   }
 }
 
-export async function DELETE(req, { params }) {
-  const { id } = params;
+// ✅ DELETE: Remove from Cart
+export async function DELETE(req, context) {
+  const { id } = context.params;
   const parsedId = parseInt(id);
 
-  console.log('[DELETE] Requested ID:', id, 'Parsed:', parsedId);
-
   if (isNaN(parsedId)) {
-    console.error('[DELETE] Invalid ID');
     return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
   }
 
@@ -35,7 +37,7 @@ export async function DELETE(req, { params }) {
     });
 
     console.log('[DELETE] Successfully deleted item with ID:', parsedId);
-    return NextResponse.json({ success: true }, { status: 204 });
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error('[DELETE] Failed to delete item:', error);
 
@@ -43,11 +45,9 @@ export async function DELETE(req, { params }) {
       error.code === 'P2025' ||
       error.message.includes('Record to delete does not exist')
     ) {
-      return NextResponse.json({ success: true }, { status: 204 });
+      return new NextResponse(null, { status: 204 });
     }
 
     return NextResponse.json({ error: 'Failed to delete item' }, { status: 500 });
   }
 }
-
-

@@ -39,8 +39,9 @@ model CartItem {
   lunchMenuId Int?
   quantity    Int  @default(1)
 
-  menu      Menu?      @relation("MenuCartItems", fields: [menuId], references: [id])
-  lunchMenu LunchMenu? @relation("LunchMenuCartItems", fields: [lunchMenuId], references: [id])
+  menu         Menu?      @relation("MenuCartItems", fields: [menuId], references: [id])
+  lunchMenu    LunchMenu? @relation("LunchMenuCartItems", fields: [lunchMenuId], references: [id])
+  sessionToken String?
 }
 
 model Contact {
@@ -52,10 +53,14 @@ model Contact {
 }
 
 model Order {
-  id        Int         @id @default(autoincrement())
-  createdAt DateTime    @default(now())
-  total     Float
-  items     OrderItem[] // ✅ One-to-many relationship
+  id           Int         @id @default(autoincrement())
+  customerName String?
+  createdAt    DateTime    @default(now())
+  total        Float
+  userId       Int?
+  items        OrderItem[] // ✅ One-to-many relationship
+
+  User User? @relation(fields: [userId], references: [id])
 }
 
 model OrderItem {
@@ -73,4 +78,15 @@ model OrderItem {
 
   menu      Menu?      @relation(fields: [menuId], references: [id])
   lunchMenu LunchMenu? @relation(fields: [lunchMenuId], references: [id])
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  name       String
+  email      String    @unique
+  password   String
+  createdAt  DateTime  @default(now())
+  otp        String? // One-time password
+  otpExpires DateTime? // OTP expiration time
+  orders     Order[]
 }
