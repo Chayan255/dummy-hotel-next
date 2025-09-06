@@ -17,6 +17,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-toastify": "^11.0.5",
+    "rss-parser": "^3.13.0",
     "stripe": "^18.3.0",
     "swiper": "^11.2.10"
   },
