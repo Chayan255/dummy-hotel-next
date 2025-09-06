@@ -11,6 +11,7 @@ export default function Navbar() {
       <div className="flex space-x-6 relative text-gray-700 font-medium">
         <Link href="/" className="hover:text-yellow-600 transition">Home</Link>
         <Link href="/about" className="hover:text-yellow-600 transition">About</Link>
+        <Link href="/current-affairs" className="hover:text-yellow-600 transition">news</Link>
 
         <div
           className="relative"
