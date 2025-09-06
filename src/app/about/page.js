@@ -2,7 +2,7 @@ export default function AboutPage() {
   return (
     <div className="p-10 max-w-6xl mx-auto">
       <h1 className="text-4xl font-bold text-center mb-10 text-yellow-600">
-        About Hotel Delish
+        About our Hotel Delish 
       </h1>
 
       <div className="grid md:grid-cols-2 gap-10 items-center">
